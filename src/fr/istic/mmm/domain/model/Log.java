@@ -25,10 +25,12 @@ public class Log implements Serializable {
 
 	protected String modelTarget;
 
+	protected String keyList;
+
 	protected OperationType operationType;
 
 	protected Date date;
-	
+
 	protected boolean persisted = false;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -39,6 +41,14 @@ public class Log implements Serializable {
 	@PrimaryKey
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Key id;
+
+	public String getKeyList() {
+		return keyList;
+	}
+
+	public void setKeyList(String keyList) {
+		this.keyList = keyList;
+	}
 
 	public String getData() {
 		return data;
@@ -71,8 +81,6 @@ public class Log implements Serializable {
 	// public void setUser(User user) {
 	// this.user = user;
 	// }
-	
-	
 
 	public String getTarget() {
 		return modelTarget;
@@ -98,10 +106,10 @@ public class Log implements Serializable {
 		this.id = id;
 	}
 
-	 @JsonProperty(value = "key")
-	 public long getIdFromKey() {
-	 return this.id.getId();
-	 }
+	@JsonProperty(value = "key")
+	public long getIdFromKey() {
+		return this.id.getId();
+	}
 
 	public Log() {
 

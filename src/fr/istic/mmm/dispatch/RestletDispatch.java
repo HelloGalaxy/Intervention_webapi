@@ -4,13 +4,15 @@ import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.routing.Router;
 
-import fr.istic.mmm.domain.service.webapi.AccountController;
-import fr.istic.mmm.domain.service.webapi.InterventionController;
-import fr.istic.mmm.domain.service.webapi.LogController;
-import fr.istic.mmm.domain.service.webapi.LoginController;
-import fr.istic.mmm.domain.service.webapi.TestController_Intervention;
-import fr.istic.mmm.domain.service.webapi.TestController_User;
-import fr.istic.mmm.domain.service.webapi.UserController;
+import fr.istic.mmm.domain.logexecution.LogExecutor;
+import fr.istic.mmm.domain.webapi.AccountController;
+import fr.istic.mmm.domain.webapi.InterventionController;
+import fr.istic.mmm.domain.webapi.LogController;
+import fr.istic.mmm.domain.webapi.LoginController;
+import fr.istic.mmm.domain.webapi.SynInterventionController;
+import fr.istic.mmm.domain.webapi.TestController_Intervention;
+import fr.istic.mmm.domain.webapi.TestController_User;
+import fr.istic.mmm.domain.webapi.UserController;
 
 @SuppressWarnings("deprecation")
 public class RestletDispatch extends Application {
@@ -33,16 +35,18 @@ public class RestletDispatch extends Application {
 		router.attach("/user/{userid}", UserController.class);
 
 		router.attach("/log", LogController.class);
-		
+
 		router.attach("/login/{login}/{password}", LoginController.class);
+
+		router.attach("/intervention/syn/{userid}",
+				SynInterventionController.class);
 
 		router.attach("/account", AccountController.class);
 		router.attach("/account/{userid}", AccountController.class);
 		router.attach("/account/{userid}/{accountid}", AccountController.class);
 
 		router.attach("/intervention", InterventionController.class);
-		router.attach("/intervention/{userid}",
-				InterventionController.class);
+		router.attach("/intervention/{userid}", InterventionController.class);
 		router.attach("/intervention/{userid}/{interventionid}",
 				InterventionController.class);
 

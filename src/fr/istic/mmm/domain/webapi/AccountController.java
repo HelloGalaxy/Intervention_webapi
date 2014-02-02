@@ -1,4 +1,4 @@
-package fr.istic.mmm.domain.service.webapi;
+package fr.istic.mmm.domain.webapi;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -9,30 +9,39 @@ import org.restlet.resource.Post;
 import org.restlet.resource.Put;
 import org.restlet.resource.ServerResource;
 
-import fr.istic.mmm.domain.model.Intervention;
+import fr.istic.mmm.domain.model.Account;
 import fr.istic.mmm.domain.model.User;
 import fr.istic.mmm.domain.response.ExeReport;
 import fr.istic.mmm.helper.EmfHelper;
 import fr.istic.mmm.helper.ExeReportHelper;
 
-public class InterventionController extends ServerResource {
+public class AccountController extends ServerResource {
 
 	private static final EntityManagerFactory emf = EmfHelper.get();
 
 	@Post
-	public ExeReport createModel(Intervention intervention) {
-
-		if (intervention == null) {
-			return ExeReportHelper.getParamterError();
-		}
+	public ExeReport createModel(Account account) {
 
 		String userKey = (String) getRequest().getAttributes().get("userid");
 
 		if (userKey == null)
 			return ExeReportHelper.getParamterError();
 
+		long userId = 0;
+
 		try {
-			long userId = Long.valueOf(userKey);
+			userId = Long.valueOf(userKey);
+		} catch (Exception e) {
+			System.out.println(e);
+			return ExeReportHelper.getParamterError(e.getMessage());
+		}
+
+		return createModel(userId, account);
+	}
+
+	public ExeReport createModel(long userId, Account account) {
+
+		try {
 
 			EntityManager em = emf.createEntityManager();
 
@@ -40,7 +49,7 @@ public class InterventionController extends ServerResource {
 
 			if (user != null) {
 
-				user.getIntervention().add(intervention);
+				user.getAccount().add(account);
 
 				em.getTransaction().begin();
 				em.persist(user);
@@ -48,42 +57,54 @@ public class InterventionController extends ServerResource {
 			} else {
 				return ExeReportHelper.getParamterError();
 			}
-
 		} catch (Exception e) {
 
 			System.out.println(e);
 			return ExeReportHelper.getDataBaseError();
 		}
 
-		return ExeReportHelper.getSuccess(String.valueOf(intervention
-				.getIdFromKey()));
+		return ExeReportHelper
+				.getSuccess(String.valueOf(account.getIdFromKey()));
 	}
 
 	@Delete
 	public ExeReport deleteModel() {
 
 		String userKey = (String) getRequest().getAttributes().get("userid");
-		String interventionKey = (String) getRequest().getAttributes().get(
-				"interventionid");
+		String accountKey = (String) getRequest().getAttributes().get(
+				"accountid");
 
-		if (userKey == null || interventionKey == null)
+		if (userKey == null || accountKey == null)
 			return ExeReportHelper.getParamterError();
-
+		long userId = 0;
+		long accountId = 0;
 		try {
 
-			long userId = Long.valueOf(userKey);
-			long interventionId = Long.valueOf(interventionKey);
+			userId = Long.valueOf(userKey);
+			accountId = Long.valueOf(accountKey);
+
+		} catch (Exception e) {
+			System.out.println(e);
+			return ExeReportHelper.getParamterError(e.getMessage());
+		}
+
+		return deleteModel(userId, accountId);
+	}
+
+	public ExeReport deleteModel(long userId, long accountId) {
+
+		try {
 
 			EntityManager em = emf.createEntityManager();
 
 			User user = em.find(User.class, userId);
 
 			if (user != null) {
-				for (Intervention intervention : user.getIntervention()) {
-					if (intervention.getIdFromKey() == interventionId) {
+				for (Account account : user.getAccount()) {
+					if (account.getIdFromKey() == accountId) {
 
-						user.getIntervention().remove(intervention);
-						
+						user.getAccount().remove(account);
+
 						em.getTransaction().begin();
 						em.merge(user);
 						em.getTransaction().commit();
@@ -97,7 +118,6 @@ public class InterventionController extends ServerResource {
 			}
 
 		} catch (Exception e) {
-
 			System.out.println(e);
 			return ExeReportHelper.getDataBaseError(e.getMessage());
 		}
@@ -106,30 +126,29 @@ public class InterventionController extends ServerResource {
 	}
 
 	@Get
-	public Intervention read() {
+	public Account readModel() {
 
-		Intervention target = null;
+		Account target = null;
 
 		String userKey = (String) getRequest().getAttributes().get("userid");
-		String interventionKey = (String) getRequest().getAttributes().get(
-				"interventionid");
+		String accountKey = (String) getRequest().getAttributes().get(
+				"accountid");
 
-		if (userKey == null || interventionKey == null)
+		if (userKey == null || accountKey == null)
 			return null;
 
 		try {
 
 			long userId = Long.valueOf(userKey);
-			long interventionId = Long.valueOf(interventionKey);
+			long accountId = Long.valueOf(accountKey);
 
 			EntityManager em = emf.createEntityManager();
 			User user = em.find(User.class, userId);
 
 			if (user != null) {
-				for (Intervention intervention : user.getIntervention()) {
-					if (intervention.getIdFromKey() == interventionId) {
-
-						target = intervention;
+				for (Account account : user.getAccount()) {
+					if (account.getIdFromKey() == accountId) {
+						target = account;
 						break;
 					}
 				}
@@ -143,72 +162,84 @@ public class InterventionController extends ServerResource {
 	}
 
 	// @Override
-	// public List<Intervention> readAll() {
-	// List<Intervention> targets = null;
+	// public List<Account> readAll() {
+	// List<Account> tragets = null;
 	// try {
 	// EntityManager em = emf.createEntityManager();
 	//
 	// em.getTransaction().begin();
-	// String queryString = "select obj from User as obj ";
+	// String queryString = "select obj from Account as obj ";
 	// Query query = em.createQuery(queryString);
-	// targets = query.getResultList();
+	// tragets = query.getResultList();
 	// em.getTransaction().commit();
 	//
 	// } catch (Exception e) {
-	// return targets;
+	// return tragets;
 	// }
 	//
-	// return targets;
+	// return tragets;
 	// }
 
 	@Put
-	public ExeReport updateModel(Intervention intervention) {
+	public ExeReport updateModel(Account account) {
 
-		if (intervention == null) {
+		if (account == null) {
 			return ExeReportHelper.getParamterError();
 		}
-		String userKey = (String) getRequest().getAttributes().get("userid");
-		String interventionKey = (String) getRequest().getAttributes().get(
-				"interventionid");
 
-		if (userKey == null || interventionKey == null)
+		String userKey = (String) getRequest().getAttributes().get("userid");
+		String accountKey = (String) getRequest().getAttributes().get(
+				"accountid");
+
+		if (userKey == null || accountKey == null)
 			return null;
+
+		long userId = 0;
+		long accountId = 0;
 
 		try {
 
-			long userId = Long.valueOf(userKey);
-			long interventionId = Long.valueOf(interventionKey);
+			userId = Long.valueOf(userKey);
+			accountId = Long.valueOf(accountKey);
+
+		} catch (Exception e) {
+			System.out.println(e);
+			return ExeReportHelper.getParamterError(e.getMessage());
+		}
+
+		return updateModel(userId, accountId, account);
+	}
+
+	public ExeReport updateModel(long userId, long accountId, Account account) {
+
+		try {
 
 			EntityManager em = emf.createEntityManager();
 			User user = em.find(User.class, userId);
 
 			if (user != null) {
 
-				for (Intervention item : user.getIntervention()) {
-					if (item.getIdFromKey() == interventionId) {
+				for (Account item : user.getAccount()) {
+					if (item.getIdFromKey() == accountId) {
 
-						item.setDate(intervention.getDate());
-						item.setInterventionState(intervention
-								.getInterventionState());
-						item.setRemark(intervention.getRemark());
-						item.setInterventionType(intervention
-								.getInterventionType());
-						item.setLocation(intervention.getLocation());
+						item.setLogin(account.getLogin());
+						item.setPassword(account.getPassword());
 
 						em.getTransaction().begin();
+
 						em.merge(user);
 						em.getTransaction().commit();
+
+						break;
 					}
 				}
-			} else {
-				return ExeReportHelper
-						.getParamterError("Can't find the model.");
+
 			}
+
 		} catch (Exception e) {
-			return ExeReportHelper.getDataBaseError(e.getMessage());
+			return ExeReportHelper.getDataBaseError();
 		}
 
 		return ExeReportHelper.getSuccess();
 	}
-
 }

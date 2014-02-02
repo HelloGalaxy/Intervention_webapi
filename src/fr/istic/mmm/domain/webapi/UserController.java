@@ -1,4 +1,4 @@
-package fr.istic.mmm.domain.service.webapi;
+package fr.istic.mmm.domain.webapi;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -47,10 +47,20 @@ public class UserController extends ServerResource {
 
 		if (userkey == null)
 			return ExeReportHelper.getParamterError();
+		long userid = 0;
+		try {
+			userid = Long.valueOf(userkey);
+		} catch (Exception e) {
+			System.out.println(e);
+			return ExeReportHelper.getParamterError(e.getMessage());
+		}
+
+		return deleteModel(userid);
+	}
+
+	public ExeReport deleteModel(long userid) {
 
 		try {
-
-			long userid = Long.valueOf(userkey);
 
 			EntityManager em = emf.createEntityManager();
 
@@ -131,11 +141,28 @@ public class UserController extends ServerResource {
 		if (userkey == null)
 			return null;
 
+		long userid = 0l;
+		try {
+
+			userid = Long.valueOf(userkey);
+
+		} catch (Exception e) {
+			System.out.println(e);
+			return ExeReportHelper.getParamterError(e.getMessage());
+		}
+
+		return updateModel(userid, user);
+	}
+
+	public ExeReport updateModel(long userid, User user) {
+
+		if (user == null) {
+			return ExeReportHelper.getParamterError();
+		}
+
 		User target = null;
 
 		try {
-
-			long userid = Long.valueOf(userkey);
 
 			EntityManager em = emf.createEntityManager();
 

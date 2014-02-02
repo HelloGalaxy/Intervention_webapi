@@ -1,4 +1,4 @@
-package fr.istic.mmm.domain.service.webapi;
+package fr.istic.mmm.domain.webapi;
 
 import java.util.Date;
 

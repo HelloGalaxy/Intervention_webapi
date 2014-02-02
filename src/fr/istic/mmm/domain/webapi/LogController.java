@@ -1,13 +1,16 @@
-package fr.istic.mmm.domain.service.webapi;
+package fr.istic.mmm.domain.webapi;
 
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
+import org.restlet.resource.Delete;
 import org.restlet.resource.Post;
+import org.restlet.resource.Put;
 import org.restlet.resource.ServerResource;
 
+import fr.istic.mmm.domain.logexecution.LogExecutor;
 import fr.istic.mmm.domain.model.Log;
 import fr.istic.mmm.domain.model.User;
 import fr.istic.mmm.domain.response.ExeReport;
@@ -56,6 +59,18 @@ public class LogController extends ServerResource {
 		}
 
 		return ExeReportHelper.getSuccess();
+	}
+
+	
+	//TODO: DEV AND TEST
+	@Put
+	public void executeLogs() {
+		new LogExecutor().executeLogs();
+	}
+
+	@Delete
+	public void deleteLogs() {
+		new LogExecutor().removLogs();
 	}
 
 	// @PUT

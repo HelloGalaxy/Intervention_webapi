@@ -50,7 +50,7 @@ public class Account implements Serializable {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
+
 	public long getUserId() {
 		return user.getIdFromKey();
 	}

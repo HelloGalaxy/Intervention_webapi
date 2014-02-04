@@ -15,6 +15,8 @@ public class ExeReportHelper {
 
 	private static ExeReport jsonError;
 
+	private static ExeReport notUniqueValue;
+
 	public static ExeReport getValideAccount() {
 
 		if (valideAccount == null) {
@@ -23,7 +25,6 @@ public class ExeReportHelper {
 		valideAccount.setRemark("Your account is valided.");
 		return valideAccount;
 	}
-	
 
 	public static ExeReport getValideAccount(String userid) {
 		if (valideAccount == null) {
@@ -39,10 +40,9 @@ public class ExeReportHelper {
 			unvalideAccount = new ExeReport(-9999);
 			unvalideAccount.setRemark("Your account isn't valided.");
 		}
-		
+
 		return unvalideAccount;
 	}
-
 
 	public static ExeReport getSuccess() {
 
@@ -110,5 +110,19 @@ public class ExeReportHelper {
 		jsonError.setRemark(remark);
 		return jsonError;
 	}
+
+	public static ExeReport getNotUniqueValue() {
+		
+		if( notUniqueValue ==null)
+			 notUniqueValue = new ExeReport(4);
+		
+		 notUniqueValue.setRemark("Filed is not unique.");
+		
+		return notUniqueValue;
+	}
+
+
+	
+	
 
 }

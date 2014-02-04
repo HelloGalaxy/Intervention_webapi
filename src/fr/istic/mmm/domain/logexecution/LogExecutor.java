@@ -56,30 +56,42 @@ public class LogExecutor {
 
 	private void persist(List<Log> logs) {
 
-		for (Log item : logs) {
-
-			String modelTarget = item.getTarget();
-
-			if ("Account".equals(modelTarget)) {
-
-			} else if ("User".equals(modelTarget)) {
-
-				LogCommand logcmd = new UserLogCmd();
-
-				String[] keys = item.getKeyList().split("+");
-
-				ExeReport report = logcmd.execute(item.getData(), keys,
-						item.getOperationType());
-
-				if (report.getState() == 0)
-					item.setPersisted(true);
-
-			} else if ("Intervention".equals(modelTarget)) {
-
-			} else {
-				// throw new Exception("The model target don't exist.");
-			}
-		}
+//		for (Log item : logs) {
+//
+//			String modelTarget = item.getTarget();
+//			String[] keys = item.getKeyList().split("+");
+//
+//			if ("Account".equals(modelTarget)) {
+//
+//				LogCommand logcmd = new AccountLogCmd();
+//				ExeReport report = logcmd.execute(item.getData(), keys,
+//						item.getOperationType());
+//
+//				if (report.getState() == 0)
+////					item.setPersisted(true);
+//
+//			} else if ("User".equals(modelTarget)) {
+//
+//				LogCommand logcmd = new UserLogCmd();
+//				ExeReport report = logcmd.execute(item.getData(), keys,
+//						item.getOperationType());
+//
+//				if (report.getState() == 0)
+////					item.setPersisted(true);
+//
+//			} else if ("Intervention".equals(modelTarget)) {
+//				
+//				LogCommand logcmd = new InterventionLogCmd();
+//				ExeReport report = logcmd.execute(item.getData(), keys,
+//						item.getOperationType());
+//
+//				if (report.getState() == 0)
+////					item.setPersisted(true);
+//				
+//			} else {
+//				// throw new Exception("The model target don't exist.");
+//			}
+//		}
 
 		EntityManager em = emf.createEntityManager();
 		em.getTransaction().begin();

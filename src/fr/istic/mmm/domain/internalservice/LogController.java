@@ -1,77 +1,108 @@
-package fr.istic.mmm.domain.webapi;
+package fr.istic.mmm.domain.internalservice;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
-import org.restlet.resource.Delete;
-import org.restlet.resource.Post;
-import org.restlet.resource.Put;
-import org.restlet.resource.ServerResource;
-
-import fr.istic.mmm.domain.logexecution.LogExecutor;
 import fr.istic.mmm.domain.model.Log;
+import fr.istic.mmm.domain.model.OperationType;
 import fr.istic.mmm.domain.model.User;
-import fr.istic.mmm.domain.response.ExeReport;
 import fr.istic.mmm.helper.EmfHelper;
-import fr.istic.mmm.helper.ExeReportHelper;
 
-public class LogController extends ServerResource {
+public class LogController {
 
 	private static final EntityManagerFactory emf = EmfHelper.get();
 
-	@Post
-	public ExeReport createModels(List<Log> logs) {
+	public void createLog(String data, List<Long> ids, String target,
+			OperationType oprtype) {
 
-		if (logs == null) {
-			return ExeReportHelper.getParamterError();
+		Log log = new Log();
+		log.setData(data);
+		log.setDate(new Date());
+
+		StringBuilder keys = new StringBuilder();
+
+		for (int i = 0; i < ids.size(); i++) {
+			keys.append(String.valueOf(ids.get(i)) + "\\");
 		}
 
-		String userKey = (String) getRequest().getAttributes().get("userid");
+		keys.deleteCharAt(keys.length() - 1);
+		log.setKeyList(keys.toString());
 
-		if (userKey == null)
-			return ExeReportHelper.getParamterError();
+		log.setOperationType(oprtype);
+		log.setTarget(target);
+
+		EntityManager em = emf.createEntityManager();
+
+		User user = em.find(User.class, ids.get(0));
+
+		user.getLog().add(log);
 
 		try {
-
-			long userId = Long.valueOf(userKey);
-
-			EntityManager em = emf.createEntityManager();
-			User user = em.find(User.class, userId);
-
-			if (user == null) {
-				return ExeReportHelper.getParamterError();
-			}
-
-			for (Log log : logs) {
-				user.getLog().add(log);
-			}
-
 			em.getTransaction().begin();
-			em.persist(user);
+			em.merge(user);
 			em.getTransaction().commit();
-
-		} catch (Exception e) {
-
-			System.out.println(e);
-			return ExeReportHelper.getDataBaseError(e.getMessage());
+		} catch (Exception ex) {
+			System.out.println(ex);
+			em.getTransaction().rollback();
+		} finally {
+			em.close();
 		}
-
-		return ExeReportHelper.getSuccess();
 	}
 
-	
-	//TODO: DEV AND TEST
-	@Put
-	public void executeLogs() {
-		new LogExecutor().executeLogs();
-	}
-
-	@Delete
-	public void deleteLogs() {
-		new LogExecutor().removLogs();
-	}
+	// @Post
+	// public ExeReport createModels(List<Log> logs) {
+	//
+	// if (logs == null) {
+	// return ExeReportHelper.getParamterError();
+	// }
+	//
+	// String userKey = (String) getRequest().getAttributes().get("userid");
+	//
+	// if (userKey == null)
+	// return ExeReportHelper.getParamterError();
+	//
+	// try {
+	//
+	// long userId = Long.valueOf(userKey);
+	//
+	// EntityManager em = emf.createEntityManager();
+	// User user = em.find(User.class, userId);
+	//
+	// if (user == null) {
+	// return ExeReportHelper.getParamterError();
+	// }
+	//
+	// for (Log log : logs) {
+	// user.getLog().add(log);
+	// }
+	//
+	// em.getTransaction().begin();
+	// em.persist(user);
+	// em.getTransaction().commit();
+	//
+	// } catch (Exception e) {
+	//
+	// System.out.println(e);
+	// return ExeReportHelper.getDataBaseError(e.getMessage());
+	// }
+	//
+	// return ExeReportHelper.getSuccess();
+	// }
+	//
+	//
+	// //TODO: DEV AND TEST
+	// @Put
+	// public void executeLogs() {
+	// new LogExecutor().executeLogs();
+	// }
+	//
+	// @Delete
+	// public void deleteLogs() {
+	// new LogExecutor().removLogs();
+	// }
 
 	// @PUT
 	// @Consumes(MediaType.APPLICATION_JSON)

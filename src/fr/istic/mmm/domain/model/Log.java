@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import javax.jdo.annotations.PrimaryKey;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -27,11 +28,12 @@ public class Log implements Serializable {
 
 	protected String keyList;
 
+	@Embedded
 	protected OperationType operationType;
 
 	protected Date date;
 
-	protected boolean persisted = false;
+//	protected boolean persisted = false;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JsonIgnore
@@ -86,13 +88,13 @@ public class Log implements Serializable {
 		return modelTarget;
 	}
 
-	public boolean hasPersisted() {
-		return persisted;
-	}
-
-	public void setPersisted(boolean persisted) {
-		this.persisted = persisted;
-	}
+//	public boolean hasPersisted() {
+//		return persisted;
+//	}
+//
+//	public void setPersisted(boolean persisted) {
+//		this.persisted = persisted;
+//	}
 
 	public void setTarget(String target) {
 		this.modelTarget = target;

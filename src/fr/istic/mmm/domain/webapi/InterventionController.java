@@ -1,23 +1,31 @@
 package fr.istic.mmm.domain.webapi;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 import org.restlet.resource.Put;
 import org.restlet.resource.ServerResource;
 
+import fr.istic.mmm.domain.internalservice.LogController;
 import fr.istic.mmm.domain.model.Intervention;
 import fr.istic.mmm.domain.model.User;
 import fr.istic.mmm.domain.response.ExeReport;
 import fr.istic.mmm.helper.EmfHelper;
 import fr.istic.mmm.helper.ExeReportHelper;
+import fr.istic.mmm.helper.OperationTypeHelper;
 
 public class InterventionController extends ServerResource {
 
 	private static final EntityManagerFactory emf = EmfHelper.get();
+	private static ObjectMapper om = new ObjectMapper();
+	private LogController logController = new LogController();
 
 	@Post
 	public ExeReport createModel(Intervention intervention) {
@@ -47,10 +55,12 @@ public class InterventionController extends ServerResource {
 
 	public ExeReport createModel(long userId, Intervention intervention) {
 
-		try {
-			EntityManager em = emf.createEntityManager();
+		User user = null;
+		EntityManager em = emf.createEntityManager();
 
-			User user = em.find(User.class, userId);
+		try {
+
+			user = em.find(User.class, userId);
 
 			if (user != null) {
 
@@ -66,8 +76,28 @@ public class InterventionController extends ServerResource {
 
 		} catch (Exception e) {
 			System.out.println(e);
+			em.getTransaction().rollback();
+			em.close();
 			return ExeReportHelper.getDataBaseError();
+		} finally {
+			em.close();
 		}
+
+		// TO LOG
+		String data = "";
+		try {
+			data = om.writeValueAsString(intervention);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ExeReportHelper.getJsonError(e.getMessage());
+		}
+
+		List<Long> ids = new LinkedList<Long>();
+		ids.add(user.getIdFromKey());
+		ids.add(intervention.getIdFromKey());
+
+		logController.createLog(data, ids, Intervention.class.getName(),
+				OperationTypeHelper.getCreate());
 
 		return ExeReportHelper.getSuccess(String.valueOf(intervention
 				.getIdFromKey()));
@@ -102,21 +132,35 @@ public class InterventionController extends ServerResource {
 
 	public ExeReport deleteModel(long userId, long interventionId) {
 
+		EntityManager em = emf.createEntityManager();
+		User user = null;
+		Intervention target = null;
+		String data = "";
+		List<Long> ids = new LinkedList<Long>();
 		try {
 
-			EntityManager em = emf.createEntityManager();
-
-			User user = em.find(User.class, userId);
+			user = em.find(User.class, userId);
 
 			if (user != null) {
-				for (Intervention intervention : user.getIntervention()) {
-					if (intervention.getIdFromKey() == interventionId) {
+				for (Intervention item : user.getIntervention()) {
+					if (item.getIdFromKey() == interventionId) {
 
-						user.getIntervention().remove(intervention);
+						target = item;
+						user.getIntervention().remove(item);
 
 						em.getTransaction().begin();
 						em.merge(user);
 						em.getTransaction().commit();
+
+						try {
+							data = om.writeValueAsString(target);
+						} catch (Exception e) {
+							e.printStackTrace();
+							return ExeReportHelper.getJsonError(e.getMessage());
+						}
+
+						ids.add(user.getIdFromKey());
+						ids.add(target.getIdFromKey());
 
 						break;
 					}
@@ -126,11 +170,22 @@ public class InterventionController extends ServerResource {
 						.getParamterError("Can't find the model.");
 			}
 
-		} catch (Exception e) {
+			if (target == null)
+				return ExeReportHelper
+						.getParamterError("Can't find the model.");
 
+		} catch (Exception e) {
+			em.getTransaction().rollback();
 			System.out.println(e);
+			em.close();
 			return ExeReportHelper.getDataBaseError(e.getMessage());
+		} finally {
+			em.close();
 		}
+
+		// TO LOG
+		logController.createLog(data, ids, Intervention.class.getName(),
+				OperationTypeHelper.getDelete());
 
 		return ExeReportHelper.getSuccess();
 	}
@@ -147,12 +202,12 @@ public class InterventionController extends ServerResource {
 		if (userKey == null || interventionKey == null)
 			return null;
 
+		EntityManager em = emf.createEntityManager();
 		try {
 
 			long userId = Long.valueOf(userKey);
 			long interventionId = Long.valueOf(interventionKey);
 
-			EntityManager em = emf.createEntityManager();
 			User user = em.find(User.class, userId);
 
 			if (user != null) {
@@ -167,6 +222,8 @@ public class InterventionController extends ServerResource {
 
 		} catch (Exception e) {
 			System.out.println(e);
+		} finally {
+			//em.close();
 		}
 
 		return target;
@@ -197,6 +254,7 @@ public class InterventionController extends ServerResource {
 		if (intervention == null) {
 			return ExeReportHelper.getParamterError();
 		}
+
 		String userKey = (String) getRequest().getAttributes().get("userid");
 		String interventionKey = (String) getRequest().getAttributes().get(
 				"interventionid");
@@ -212,31 +270,6 @@ public class InterventionController extends ServerResource {
 			userId = Long.valueOf(userKey);
 			interventionId = Long.valueOf(interventionKey);
 
-			EntityManager em = emf.createEntityManager();
-			User user = em.find(User.class, userId);
-
-			if (user != null) {
-
-				for (Intervention item : user.getIntervention()) {
-					if (item.getIdFromKey() == interventionId) {
-
-						item.setDate(intervention.getDate());
-						item.setInterventionState(intervention
-								.getInterventionState());
-						item.setRemark(intervention.getRemark());
-						item.setInterventionType(intervention
-								.getInterventionType());
-						item.setLocation(intervention.getLocation());
-
-						em.getTransaction().begin();
-						em.merge(user);
-						em.getTransaction().commit();
-					}
-				}
-			} else {
-				return ExeReportHelper
-						.getParamterError("Can't find the model.");
-			}
 		} catch (Exception e) {
 			return ExeReportHelper.getDataBaseError(e.getMessage());
 		}
@@ -247,16 +280,20 @@ public class InterventionController extends ServerResource {
 	public ExeReport updateModel(long userId, long interventionId,
 			Intervention intervention) {
 
-		try {
+		EntityManager em = emf.createEntityManager();
+		User user = em.find(User.class, userId);
+		String data = "";
+		List<Long> ids = new LinkedList<Long>();
+		Intervention target = null;
 
-			EntityManager em = emf.createEntityManager();
-			User user = em.find(User.class, userId);
+		try {
 
 			if (user != null) {
 
 				for (Intervention item : user.getIntervention()) {
 					if (item.getIdFromKey() == interventionId) {
 
+						target = item;
 						item.setDate(intervention.getDate());
 						item.setInterventionState(intervention
 								.getInterventionState());
@@ -268,15 +305,40 @@ public class InterventionController extends ServerResource {
 						em.getTransaction().begin();
 						em.merge(user);
 						em.getTransaction().commit();
+
+						try {
+							data = om.writeValueAsString(target);
+						} catch (Exception e) {
+							e.printStackTrace();
+							return ExeReportHelper.getJsonError(e.getMessage());
+						}
+
+						ids.add(user.getIdFromKey());
+						ids.add(target.getIdFromKey());
+
+						break;
 					}
 				}
 			} else {
 				return ExeReportHelper
 						.getParamterError("Can't find the model.");
 			}
+
+			if (target == null)
+				return ExeReportHelper
+						.getParamterError("Can't find the model.");
+
 		} catch (Exception e) {
+			em.getTransaction().rollback();
+			em.close();
 			return ExeReportHelper.getDataBaseError(e.getMessage());
+		} finally {
+			em.close();
 		}
+
+		// TO LOG
+		logController.createLog(data, ids, Intervention.class.getName(),
+				OperationTypeHelper.getUpdate());
 
 		return ExeReportHelper.getSuccess();
 	}

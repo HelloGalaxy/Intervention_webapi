@@ -15,11 +15,13 @@ import javax.persistence.ManyToOne;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
 import com.google.appengine.api.datastore.Key;
 
 @Entity
-@JsonIgnoreProperties(value = {"id", "user"})
+@JsonIgnoreProperties(value = { "id", "user" })
 public class Intervention implements Serializable {
 
 	private static final long serialVersionUID = -863671259274273059L;
@@ -28,13 +30,13 @@ public class Intervention implements Serializable {
 
 	protected String remark;
 
-//	@OneToOne
-//	@JsonIgnore
+	// @OneToOne
+	// @JsonIgnore
 	@Embedded
 	protected InterventionState interventionState;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-//	@JsonIgnore
+	// @JsonIgnore
 	protected User user;
 
 	// @ManyToOne(fetch = FetchType.LAZY)
@@ -52,6 +54,11 @@ public class Intervention implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@JsonIgnore
 	private Key id;
+
+	@JsonSerialize(include=Inclusion.NON_NULL)
+	public long getUserId() {
+		return user.getIdFromKey();
+	}
 
 	public Date getDate() {
 		return date;
@@ -108,13 +115,12 @@ public class Intervention implements Serializable {
 	public void setId(Key id) {
 		this.id = id;
 	}
-	
-	
 
-	 @JsonProperty(value = "key")
-	 public long getIdFromKey() {
-	 return this.id.getId();
-	 }
+	@JsonProperty(value = "key")
+	@JsonSerialize(include=Inclusion.NON_NULL)
+	public long getIdFromKey() {
+		return this.id.getId();
+	}
 
 	public InterventionType getInterventionType() {
 		return interventionType;

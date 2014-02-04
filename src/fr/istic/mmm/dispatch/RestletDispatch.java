@@ -4,10 +4,10 @@ import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.routing.Router;
 
+import fr.istic.mmm.domain.internalservice.LogController;
 import fr.istic.mmm.domain.logexecution.LogExecutor;
 import fr.istic.mmm.domain.webapi.AccountController;
 import fr.istic.mmm.domain.webapi.InterventionController;
-import fr.istic.mmm.domain.webapi.LogController;
 import fr.istic.mmm.domain.webapi.LoginController;
 import fr.istic.mmm.domain.webapi.SynInterventionController;
 import fr.istic.mmm.domain.webapi.TestController_Intervention;

@@ -21,51 +21,51 @@ public class InterventionLogCmd implements LogCommand {
 		long interventionid = 0l;
 		Intervention intervention = null;
 
-		switch (optType) {
-		case CREATE:
-
-			try {
-				intervention = om.readValue(target, Intervention.class);
-				userid = Long.parseLong(keys[0]);
-				report = interventionctrl.createModel(userid, intervention);
-			} catch (Exception e) {
-				e.printStackTrace();
-				report = ExeReportHelper.getParamterError(e.getMessage());
-			}
-
-			break;
-
-		case DELETE:
-
-			try {
-				userid = Long.parseLong(keys[0]);
-				interventionid = Long.parseLong(keys[0]);
-				report = interventionctrl.deleteModel(userid, interventionid);
-			} catch (Exception e) {
-				e.printStackTrace();
-				report = ExeReportHelper.getParamterError(e.getMessage());
-			}
-
-			break;
-
-		case UPDATE:
-
-			try {
-				intervention = om.readValue(target, Intervention.class);
-				userid = Long.parseLong(keys[0]);
-				interventionid = Long.parseLong(keys[0]);
-				report = interventionctrl.updateModel(userid, interventionid,
-						intervention);
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				report = ExeReportHelper.getParamterError(e.getMessage());
-			}
-
-			break;
-		default:
-			break;
-		}
+//		switch (optType) {
+//		case CREATE:
+//
+//			try {
+//				intervention = om.readValue(target, Intervention.class);
+//				userid = Long.parseLong(keys[0]);
+//				report = interventionctrl.createModel(userid, intervention);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				report = ExeReportHelper.getParamterError(e.getMessage());
+//			}
+//
+//			break;
+//
+//		case DELETE:
+//
+//			try {
+//				userid = Long.parseLong(keys[0]);
+//				interventionid = Long.parseLong(keys[0]);
+//				report = interventionctrl.deleteModel(userid, interventionid);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				report = ExeReportHelper.getParamterError(e.getMessage());
+//			}
+//
+//			break;
+//
+//		case UPDATE:
+//
+//			try {
+//				intervention = om.readValue(target, Intervention.class);
+//				userid = Long.parseLong(keys[0]);
+//				interventionid = Long.parseLong(keys[0]);
+//				report = interventionctrl.updateModel(userid, interventionid,
+//						intervention);
+//
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				report = ExeReportHelper.getParamterError(e.getMessage());
+//			}
+//
+//			break;
+//		default:
+//			break;
+//		}
 
 		return report;
 	}

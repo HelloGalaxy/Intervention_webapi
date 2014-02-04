@@ -74,7 +74,9 @@ public class UserController extends ServerResource {
 
 		if (userkey == null)
 			return ExeReportHelper.getParamterError();
+
 		long userid = 0;
+
 		try {
 			userid = Long.valueOf(userkey);
 		} catch (Exception e) {
@@ -86,8 +88,11 @@ public class UserController extends ServerResource {
 	}
 
 	public ExeReport deleteModel(long userid) {
+		
 		EntityManager em = emf.createEntityManager();
+		
 		User target = null;
+		
 		try {
 
 			target = em.find(User.class, userid);
@@ -104,7 +109,6 @@ public class UserController extends ServerResource {
 			}
 
 		} catch (Exception e) {
-
 			System.out.println(e);
 			em.getTransaction().rollback();
 			em.close();
@@ -136,7 +140,7 @@ public class UserController extends ServerResource {
 		} catch (Exception e) {
 			System.out.println(e);
 		} finally {
-			em.close();
+			// em.close();
 		}
 
 		return target;
@@ -234,7 +238,7 @@ public class UserController extends ServerResource {
 			em.close();
 			return ExeReportHelper.getDataBaseError(e.getMessage());
 		} finally {
-			//em.close();
+			// em.close();
 		}
 
 		// TO LOG

@@ -18,7 +18,8 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import com.google.appengine.api.datastore.Key;
 
 @Entity
-@JsonIgnoreProperties(value = { "id", "intervention", "log" })
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "id", "intervention",
+		"log", "account" })
 public class User implements Serializable {
 
 	private static final long serialVersionUID = -3753596757350963693L;

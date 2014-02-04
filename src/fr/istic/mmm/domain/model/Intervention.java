@@ -21,7 +21,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import com.google.appengine.api.datastore.Key;
 
 @Entity
-@JsonIgnoreProperties(value = { "id", "user" })
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "id", "user" })
 public class Intervention implements Serializable {
 
 	private static final long serialVersionUID = -863671259274273059L;

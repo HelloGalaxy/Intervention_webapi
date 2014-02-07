@@ -15,9 +15,7 @@ import fr.istic.mmm.domain.model.Account;
 import fr.istic.mmm.domain.model.User;
 import fr.istic.mmm.helper.EmfHelper;
 
-// TODO: DEV TEST
 public class TestController_User extends ServerResource {
-
 	private static final EntityManagerFactory emf = EmfHelper.get();
 
 	@Get
@@ -55,22 +53,19 @@ public class TestController_User extends ServerResource {
 	@Put
 	public void update(User user) {
 		String id = (String) getRequest().getAttributes().get("id");
-		System.out.println("id: " + id + " name:  "
-				+ user.getFirstName());
-		
+		System.out.println("id: " + id + " name: " + user.getFirstName());
+
 		long idl = Long.parseLong(id);
-		
+
 		try {
-			
-	
 
 			EntityManager em = emf.createEntityManager();
 			User users = em.find(User.class, idl);
-			
+
 			System.out.println(users);
-			
+
 			users.setAge(10000);
-			
+
 			em.getTransaction().begin();
 			em.merge(users);
 			em.getTransaction().commit();
@@ -79,24 +74,21 @@ public class TestController_User extends ServerResource {
 			System.out.println(e.getMessage());
 		}
 	}
-	
+
 	@Delete
 	public void delete(User user) {
 		String id = (String) getRequest().getAttributes().get("id");
-		System.out.println("id: " + id + " name:  "
-				+ user.getFirstName());
-		
+		System.out.println("id: " + id + " name: " + user.getFirstName());
+
 		long idl = Long.parseLong(id);
-		
+
 		try {
-			
-	
 
 			EntityManager em = emf.createEntityManager();
 			User users = em.find(User.class, idl);
-			
+
 			System.out.println(users);
-			
+
 			em.getTransaction().begin();
 			em.remove(users);
 			em.getTransaction().commit();
@@ -105,5 +97,4 @@ public class TestController_User extends ServerResource {
 			System.out.println(e.getMessage());
 		}
 	}
-	
 }

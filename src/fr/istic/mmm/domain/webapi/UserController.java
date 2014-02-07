@@ -87,12 +87,18 @@ public class UserController extends ServerResource {
 		return deleteModel(userid);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see fr.istic.mmm.domain.webapi.IUserController#deleteModel(long)
+	 */
+
 	public ExeReport deleteModel(long userid) {
-		
+
 		EntityManager em = emf.createEntityManager();
-		
+
 		User target = null;
-		
+
 		try {
 
 			target = em.find(User.class, userid);
